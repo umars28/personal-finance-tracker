@@ -1,110 +1,124 @@
-🔐 1. Autentikasi & User Management
- Registrasi pengguna (/register)
+# 📘 Personal Finance Tracker API
 
-Input: nama, email, password
+API sederhana untuk mencatat pemasukan dan pengeluaran harian dengan Laravel, PostgreSQL, Redis, Swagger, Docker, dan Repository Pattern.
 
- Login pengguna (/login)
+---
 
-Output: API token (Sanctum)
+## 🔐 1. Autentikasi & User Management
 
- Logout pengguna (/logout)
+- **Registrasi**: `POST /register`
+  - Input: `name`, `email`, `password`
+- **Login**: `POST /login`
+  - Output: API Token (Laravel Sanctum)
+- **Logout**: `POST /logout`
+- **Profil**: `GET /me`
+  - Mendapatkan data pengguna saat ini
+- **Proteksi Autentikasi**: Middleware digunakan untuk semua endpoint pribadi
 
- Autentikasi middleware untuk endpoint yang butuh login
+---
 
- Endpoint profil (/me) untuk cek data diri
+## 💸 2. Manajemen Transaksi
 
-💸 2. Manajemen Transaksi
- CRUD transaksi (/transactions)
+- **CRUD Transaksi**: `GET|POST|PUT|DELETE /transactions`
+  - Atribut:
+    - `amount` (decimal)
+    - `type` (`income` atau `expense`)
+    - `category_id`
+    - `description`
+    - `date` (format: `YYYY-MM-DD`)
+- **Filter Transaksi**:
+  - Berdasarkan `type`
+  - Berdasarkan rentang tanggal (`start_date` & `end_date`)
+  - Berdasarkan `category_id`
+- **Pagination**: Mendukung paginasi default Laravel
 
-Atribut:
+---
 
-amount (decimal)
+## 🗂️ 3. Manajemen Kategori
 
-type: income atau expense
+- **CRUD Kategori**: `GET|POST|PUT|DELETE /categories`
+  - Atribut:
+    - `name`
+    - `type`: `income` atau `expense`
+- **Relasi**: Setiap transaksi terkait dengan satu kategori
 
-category_id (relasi)
+---
 
-description
+## 📊 4. Ringkasan & Statistik
 
-date (tanggal transaksi)
+- **Ringkasan Bulanan**: `GET /summary/monthly`
+  - Input: `month` & `year` (opsional, default: bulan ini)
+  - Output:
+    - Total pemasukan
+    - Total pengeluaran
+    - Saldo akhir
+    - Jumlah transaksi per kategori
+- **Caching dengan Redis**:
+  - Key: `summary:user:{id}:{year-month}`
+  - TTL: 10 menit atau invalidasi saat data berubah
 
- Filter transaksi:
+---
 
-Berdasarkan type (income/expense)
+## 📄 5. Swagger / OpenAPI Documentation
 
-Berdasarkan rentang tanggal (start_date & end_date)
+- Otomatis generate dokumentasi menggunakan Swagger
+- Menampilkan:
+  - Semua endpoint
+  - Parameter & request body
+  - Response format
+  - Status code
 
-Berdasarkan kategori
+---
 
- Pagination list transaksi
+## 🧪 6. Unit Test & Feature Test
 
-🗂️ 3. Manajemen Kategori
- CRUD kategori (/categories)
+- **Unit Test**:
+  - Repository transaksi
+  - Summary service
+- **Feature Test**:
+  - Autentikasi
+  - Transaksi (store, update, delete)
+  - Ringkasan bulanan
 
-Atribut:
+---
 
-name
+## ⚙️ 7. Repository Pattern
 
-type: income / expense (kategori income/pengeluaran)
+- `TransactionRepositoryInterface` + implementasi
+- `CategoryRepository`
+- `SummaryService` untuk perhitungan ringkasan
 
- Relasi: transaksi → kategori
+---
 
-📊 4. Ringkasan dan Statistik
- Ringkasan bulanan (/summary/monthly)
+## 🐳 8. Docker & Environment
 
-Input: bulan & tahun (default bulan ini)
+- **Docker Compose** terdiri dari:
+  - Laravel App (`php-fpm`)
+  - PostgreSQL
+  - Redis
+- **File `.env`** untuk konfigurasi environment
 
-Output:
+---
 
-Total pemasukan
+## 📎 Teknologi
 
-Total pengeluaran
+- Laravel 9
+- PostgreSQL
+- Redis
+- Docker
+- Swagger (OpenAPI)
+- Laravel Sanctum
+- PHPUnit
 
-Saldo akhir
+---
 
-Jumlah transaksi per kategori
+## 🛠️ Instalasi & Menjalankan
 
- Caching hasil ringkasan dengan Redis
-
-Key cache per user + bulan (contoh: summary:user:5:2025-05)
-
-TTL cache misal 10 menit atau sampai transaksi berubah
-
-📄 5. Swagger / OpenAPI Documentation
- Auto-generate dokumentasi endpoint dengan OpenAPI/Swagger
-
- Include semua parameter, response, dan status code
-
-🧪 6. Unit Test & Feature Test
- Unit test untuk:
-
-Repository transaksi
-
-Summary service
-
- Feature test untuk:
-
-Autentikasi
-
-Transaksi (store, update, delete)
-
-Ringkasan bulanan
-
-⚙️ 7. Repository Pattern
- TransactionRepositoryInterface dan implementasinya
-
- CategoryRepository
-
- SummaryService untuk logic summary bulanan
-
-🐳 8. Docker & Environment
- Docker Compose dengan 3 service:
-
-Laravel app (php-fpm)
-
-PostgreSQL
-
-Redis
-
- .env file untuk konfigurasi
-
+```bash
+git clone <repo-url>
+cd <folder>
+cp .env.example .env
+docker-compose up -d
+docker-compose exec app composer install
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate --seed
