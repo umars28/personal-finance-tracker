@@ -23,15 +23,16 @@ services:
     container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: finance
-      POSTGRES_USER: laravel
-      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: finance_db         # sesuaikan
+      POSTGRES_USER: finance_user     # sesuaikan
+      POSTGRES_PASSWORD: finance_pass # sesuaikan
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5433:5432"
     networks:
       - laravel
+
 
   redis:
     image: redis:alpine
