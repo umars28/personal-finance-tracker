@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,5 +27,7 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 });
 
-Route::apiResource('categories', CategoryController::class);
-
+Route::apiResource('categories', CategoryController::class)->middleware('auth:sanctum');
+Route::get('transactions/filter', [TransactionController::class, 'filter'])->middleware('auth:sanctum');
+Route::get('/summary/monthly', [TransactionController::class, 'monthlySummary'])->middleware('auth:sanctum');
+Route::apiResource('transactions', TransactionController::class)->middleware('auth:sanctum');
